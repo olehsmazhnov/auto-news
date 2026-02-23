@@ -1,0 +1,11 @@
+﻿create a seo ready site for auto news
+use sql from tablestemp.sql
+we use supabase for now
+use react, maybe next js?
+use TS
+I create news feed site - main purpose is to show news about cars and automotive industry
+
+I created some design in figma - so check it and use it
+
+split code to small files and folders, hooks, utils and components
+make code clean and readable
