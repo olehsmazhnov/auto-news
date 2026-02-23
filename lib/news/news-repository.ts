@@ -1,6 +1,7 @@
 ﻿import { getSupabaseClient } from "@/lib/supabase";
 import { fallbackNews } from "@/lib/news/fallback-news";
 import { mapNewsRow } from "@/lib/news/news-mapper";
+import { slugify } from "@/lib/news/slug";
 import type { CategoryCount, NewsItem } from "@/types/news";
 
 type NewsRow = {
@@ -21,6 +22,7 @@ type NewsRow = {
 
 const NEWS_SELECT =
   "id,title,excerpt,summary,image,image_url,date,published_at,views,view_count,category,is_featured,is_popular";
+const SLUG_LOOKUP_LIMIT = 2000;
 
 function sortByDateDesc(news: NewsItem[]): NewsItem[] {
   return [...news].sort((a, b) => {
@@ -36,6 +38,11 @@ function sortedFallback(): NewsItem[] {
 
 function getFallbackById(id: number): NewsItem | null {
   return fallbackNews.find((item) => item.id === id) ?? null;
+}
+
+function getFallbackBySlug(slug: string): NewsItem | null {
+  const normalizedSlug = slugify(slug);
+  return sortedFallback().find((item) => slugify(item.title) === normalizedSlug) ?? null;
 }
 
 function getFallbackCategoryCounts(): CategoryCount[] {
@@ -146,6 +153,31 @@ export async function getNewsById(id: number): Promise<NewsItem | null> {
   }
 
   return mapNewsRow(data as NewsRow);
+}
+
+export async function getNewsBySlug(slug: string): Promise<NewsItem | null> {
+  const normalizedSlug = slugify(slug);
+  const supabase = getSupabaseClient();
+
+  if (!supabase) {
+    return getFallbackBySlug(normalizedSlug);
+  }
+
+  const { data, error } = await supabase
+    .from("news_items")
+    .select(NEWS_SELECT)
+    .order("published_at", { ascending: false })
+    .limit(SLUG_LOOKUP_LIMIT);
+
+  if (error || !data) {
+    return getFallbackBySlug(normalizedSlug);
+  }
+
+  const match = data
+    .map((row) => mapNewsRow(row as NewsRow))
+    .find((item) => slugify(item.title) === normalizedSlug);
+
+  return match ?? getFallbackBySlug(normalizedSlug);
 }
 
 export async function getRelatedNews(category: string, excludedId: number, limit = 4): Promise<NewsItem[]> {
