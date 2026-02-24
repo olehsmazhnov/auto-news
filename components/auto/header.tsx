@@ -1,5 +1,6 @@
 import { IconButton } from "@/components/auto/icon-button";
 import { MenuIcon, SearchIcon } from "@/components/auto/icons";
+import { DEFAULT_NEWS_CATEGORY } from "@/lib/news/constants";
 
 export function Header() {
   return (
@@ -12,11 +13,9 @@ export function Header() {
               <div className="text-2xl font-bold text-gray-900">NEWS</div>
             </a>
             <nav className="hidden md:flex items-center gap-6">
-              <a href="#" className="text-sm hover:text-blue-600 transition-colors">News</a>
-              <a href="#" className="text-sm hover:text-blue-600 transition-colors">Test drives</a>
-              <a href="#" className="text-sm hover:text-blue-600 transition-colors">Reviews</a>
-              <a href="#" className="text-sm hover:text-blue-600 transition-colors">Tech</a>
-              <a href="#" className="text-sm hover:text-blue-600 transition-colors">EV</a>
+              {/* <a href="/" className="text-sm hover:text-blue-600 transition-colors">
+                {DEFAULT_NEWS_CATEGORY}
+              </a> */}
             </nav>
           </div>
           {/* <div className="flex items-center gap-4">

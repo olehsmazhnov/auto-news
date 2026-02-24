@@ -13,7 +13,7 @@ export function NewsSidebar({ categories, popular }: NewsSidebarProps) {
       <PopularNewsList items={popular} />
 
       <section className="sidebar-card">
-        <h3>Categories</h3>
+        <h3>Категорії</h3>
         <ul className="category-list">
           {categories.map((category) => (
             <li key={category.category}>

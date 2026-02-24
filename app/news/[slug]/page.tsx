@@ -7,6 +7,7 @@ import { NewsCard } from "@/components/auto/news-card";
 import { Sidebar } from "@/components/auto/sidebar";
 import { env } from "@/lib/env";
 import { formatPublishedDate } from "@/lib/formatters";
+import { DEFAULT_NEWS_CATEGORY } from "@/lib/news/constants";
 import { getLatestNews, getNewsById, getNewsBySlug, getPopularNews, getRelatedNews } from "@/lib/news/news-repository";
 import { parseLegacyNewsIdFromSlug, toNewsSlug } from "@/lib/news/slug";
 import type { NewsItem } from "@/types/news";
@@ -113,7 +114,7 @@ export async function generateMetadata({ params }: NewsArticlePageProps): Promis
 
   if (!resolved.article || !resolved.canonicalSlug) {
     return {
-      title: "News not found",
+      title: "Новину не знайдено",
       robots: {
         index: false,
         follow: false
@@ -130,8 +131,8 @@ export async function generateMetadata({ params }: NewsArticlePageProps): Promis
   return {
     title: article.title,
     description: article.excerpt,
-    category: article.category,
-    keywords: [article.category, "automotive news", "car news", article.title],
+    category: DEFAULT_NEWS_CATEGORY,
+    keywords: [DEFAULT_NEWS_CATEGORY, "automotive news", "car news", article.title],
     alternates: {
       canonical: canonicalPath
     },
@@ -150,8 +151,8 @@ export async function generateMetadata({ params }: NewsArticlePageProps): Promis
       description: article.excerpt,
       url: canonicalUrl,
       publishedTime: article.publishedAt,
-      section: article.category,
-      tags: [article.category],
+      section: DEFAULT_NEWS_CATEGORY,
+      tags: [DEFAULT_NEWS_CATEGORY],
       images: [
         {
           url: imageUrl,
@@ -167,7 +168,7 @@ export async function generateMetadata({ params }: NewsArticlePageProps): Promis
     },
     other: {
       "article:published_time": article.publishedAt,
-      "article:section": article.category
+      "article:section": DEFAULT_NEWS_CATEGORY
     }
   };
 }
@@ -200,7 +201,7 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
     image: [absoluteArticleImageUrl],
     datePublished: article.publishedAt,
     dateModified: article.publishedAt,
-    articleSection: article.category,
+    articleSection: DEFAULT_NEWS_CATEGORY,
     mainEntityOfPage: canonicalUrl,
     url: canonicalUrl,
     author: {
@@ -215,7 +216,7 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
   };
   const articleJsonLdString = JSON.stringify(articleJsonLd).replace(/</g, "\\u003c");
 
-  const related = await getRelatedNews(article.category, article.id, 4);
+  const related = await getRelatedNews(article.id, 4);
   const popularNews = popular.map((item) => ({
     title: item.title,
     image: item.imageUrl,
@@ -238,14 +239,14 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
             <article className="lg:col-span-2 space-y-6">
               <nav className="text-sm text-gray-500">
                 <Link href="/" className="hover:text-blue-600 transition-colors">
-                  Home
+                  Головна
                 </Link>
                 <span> / </span>
                 <Link
-                  href={`/category/${encodeURIComponent(article.category)}`}
+                  href="/"
                   className="hover:text-blue-600 transition-colors"
                 >
-                  {article.category}
+                  {DEFAULT_NEWS_CATEGORY}
                 </Link>
                 <span> / </span>
                 <span className="text-gray-700">{article.title}</span>
@@ -254,7 +255,7 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
               <section className="bg-white rounded-lg border p-6 md:p-8">
                 <div className="mb-4">
                   <span className="inline-block px-3 py-1 text-xs font-semibold bg-blue-600 text-white rounded">
-                    {article.category}
+                    {DEFAULT_NEWS_CATEGORY}
                   </span>
                 </div>
 
@@ -262,7 +263,7 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
 
                 <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-6">
                   <span>{formatPublishedDate(article.publishedAt)}</span>
-                  <span>{article.viewsLabel} views</span>
+                  <span>{article.viewsLabel} переглядів</span>
                 </div>
 
                 <div className="relative overflow-hidden rounded-lg aspect-[16/9] mb-6">
@@ -278,17 +279,25 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
 
                 <div className="space-y-4 text-gray-700 leading-7">
                   <p>{article.summary}</p>
-                  <p>{article.excerpt}</p>
-                  <p>
-                    AutoNews tracks this story as part of our ongoing automotive coverage.
-                    Follow the category feed for updates and related releases.
-                  </p>
+                  {article.sourceAttributionUrl ? (
+                    <p className="text-sm text-gray-500">
+                      Джерело:{" "}
+                      <a
+                        href={article.sourceAttributionUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline break-all"
+                      >
+                        {article.sourceAttributionUrl}
+                      </a>
+                    </p>
+                  ) : null}
                 </div>
               </section>
 
               {related.length > 0 ? (
                 <section className="bg-white rounded-lg border p-6">
-                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">Related stories</h2>
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-4">Схожі новини</h2>
                   <div className="space-y-4">
                     {related.map((item) => (
                       <NewsCard
@@ -317,46 +326,28 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
 
         <footer className="bg-gray-900 text-white mt-16">
           <div className="container mx-auto px-4 py-8">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
                 <div className="flex items-center gap-2 mb-4">
                   <div className="text-xl font-bold text-blue-500">AUTO</div>
                   <div className="text-xl font-bold">NEWS</div>
                 </div>
                 <p className="text-sm text-gray-400">
-                  Your source for the latest automotive world updates.
+                  Ваше джерело останніх новин автомобільного світу.
                 </p>
               </div>
               <div>
-                <h4 className="font-semibold mb-4">Sections</h4>
-                <ul className="space-y-2 text-sm text-gray-400">
-                  <li><a href="#" className="hover:text-white transition-colors">News</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Test drives</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Reviews</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Tech</a></li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold mb-4">Company</h4>
-                <ul className="space-y-2 text-sm text-gray-400">
-                  <li><a href="#" className="hover:text-white transition-colors">About us</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Contacts</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Advertising</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Jobs</a></li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold mb-4">Subscribe</h4>
-                <p className="text-sm text-gray-400 mb-4">Get latest news by email</p>
+                <h4 className="font-semibold mb-4">Підписка</h4>
+                <p className="text-sm text-gray-400 mb-4">Отримуйте останні новини на пошту</p>
                 <input
                   type="email"
-                  placeholder="Your email"
+                  placeholder="Ваш email"
                   className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-sm focus:outline-none focus:border-blue-500"
                 />
               </div>
             </div>
             <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
-              Copyright 2026 AutoNews. All rights reserved.
+              © 2026 AutoNews. Всі права захищено.
             </div>
           </div>
         </footer>

@@ -45,7 +45,7 @@ export function AutoNewsHome({ featuredNews, newsList, popularNews }: AutoNewsHo
             {featuredNews ? <NewsCard {...featuredNews} featured /> : null}
 
             <div className="border-t pt-8">
-              <h2 className="text-xl font-semibold mb-6">Latest news</h2>
+              <h2 className="text-xl font-semibold mb-6">Останні новини</h2>
               <div className="space-y-4">
                 {visibleNews.map((news) => (
                   <NewsCard key={news.href} {...news} />
@@ -62,7 +62,7 @@ export function AutoNewsHome({ featuredNews, newsList, popularNews }: AutoNewsHo
                   }}
                   className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
-                  Load more
+                  Завантажити ще
                 </button>
               </div>
             ) : null}
@@ -78,46 +78,28 @@ export function AutoNewsHome({ featuredNews, newsList, popularNews }: AutoNewsHo
 
       <footer className="bg-gray-900 text-white mt-16">
         <div className="container mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <div className="text-xl font-bold text-blue-500">AUTO</div>
                 <div className="text-xl font-bold">NEWS</div>
               </div>
               <p className="text-sm text-gray-400">
-                Your source for the latest automotive world updates.
+                Ваше джерело останніх новин автомобільного світу.
               </p>
             </div>
-            <div>
-              <h4 className="font-semibold mb-4">Sections</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">News</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Test drives</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Reviews</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Tech</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Company</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">About us</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contacts</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Advertising</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Jobs</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Subscribe</h4>
-              <p className="text-sm text-gray-400 mb-4">Get latest news by email</p>
+            {/* <div>
+              <h4 className="font-semibold mb-4">Підписка</h4>
+              <p className="text-sm text-gray-400 mb-4">Отримуйте останні новини на пошту</p>
               <input
                 type="email"
-                placeholder="Your email"
+                placeholder="Ваш email"
                 className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-sm focus:outline-none focus:border-blue-500"
               />
-            </div>
+            </div> */}
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
-            Copyright 2026 AutoNews. All rights reserved.
+            © 2026 AutoNews. Всі права захищено.
           </div>
         </div>
       </footer>

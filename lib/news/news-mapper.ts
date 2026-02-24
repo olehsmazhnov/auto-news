@@ -1,4 +1,6 @@
-﻿import { formatViewCount } from "@/lib/formatters";
+import { formatViewCount } from "@/lib/formatters";
+import { DEFAULT_NEWS_CATEGORY } from "@/lib/news/constants";
+import { splitSummaryAndSourceAttribution } from "@/lib/news/source-attribution";
 import type { NewsItem } from "@/types/news";
 
 type NewsRow = {
@@ -6,6 +8,7 @@ type NewsRow = {
   title: string | null;
   excerpt: string | null;
   summary: string | null;
+  source_url: string | null;
   image: string | null;
   image_url: string | null;
   date: string | null;
@@ -46,18 +49,30 @@ function normalizeImage(imageUrl: string | null, image: string | null): string {
 
 export function mapNewsRow(row: NewsRow): NewsItem {
   const viewCount = row.view_count ?? 0;
+  const normalizedExcerpt = row.excerpt?.trim() || "";
+  const summaryCandidate = row.summary?.trim() || normalizedExcerpt;
+  const { summary: cleanedSummary, sourceAttributionUrl } = splitSummaryAndSourceAttribution(
+    summaryCandidate,
+    row.source_url,
+  );
+  const normalizedSummary = cleanedSummary || normalizedExcerpt || "No summary available.";
+  const normalizedExcerptWithoutSource = splitSummaryAndSourceAttribution(
+    normalizedExcerpt,
+    null,
+  ).summary;
 
   return {
     id: row.id,
     title: row.title?.trim() || "Untitled news",
-    excerpt: row.excerpt?.trim() || "No excerpt available yet.",
-    summary: row.summary?.trim() || row.excerpt?.trim() || "No summary available.",
+    excerpt: normalizedExcerptWithoutSource || "No excerpt available yet.",
+    summary: normalizedSummary,
+    sourceAttributionUrl,
     imageUrl: normalizeImage(row.image_url, row.image),
     publishedAt: normalizeDate(row.published_at, row.date),
     viewsLabel: row.views || formatViewCount(viewCount),
     viewCount,
-    category: row.category?.trim() || "General",
+    category: DEFAULT_NEWS_CATEGORY,
     isFeatured: Boolean(row.is_featured),
-    isPopular: Boolean(row.is_popular)
+    isPopular: Boolean(row.is_popular),
   };
 }

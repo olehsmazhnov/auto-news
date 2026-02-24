@@ -5,27 +5,27 @@ import { env } from "@/lib/env";
 export const metadata: Metadata = {
   metadataBase: new URL(env.siteUrl),
   title: {
-    default: "AutoNews - Automotive News and Market Insights",
+    default: "AutoNews - Автомобільні новини та огляди ринку",
     template: "%s | AutoNews"
   },
   description:
-    "AutoNews tracks EV launches, vehicle reviews, motorsport highlights, and automotive industry trends.",
+    "AutoNews — огляди електромобілів, тест-драйви, новини автоспорту та тренди автомобільної індустрії.",
   alternates: {
     canonical: "/"
   },
   openGraph: {
     type: "website",
     siteName: "AutoNews",
-    title: "AutoNews - Automotive News and Market Insights",
+    title: "AutoNews - Автомобільні новини та огляди ринку",
     description:
-      "AutoNews tracks EV launches, vehicle reviews, motorsport highlights, and automotive industry trends.",
+      "AutoNews — огляди електромобілів, тест-драйви, новини автоспорту та тренди автомобільної індустрії.",
     url: "/"
   },
   twitter: {
     card: "summary_large_image",
-    title: "AutoNews - Automotive News and Market Insights",
+    title: "AutoNews - Автомобільні новини та огляди ринку",
     description:
-      "AutoNews tracks EV launches, vehicle reviews, motorsport highlights, and automotive industry trends."
+      "AutoNews — огляди електромобілів, тест-драйви, новини автоспорту та тренди автомобільної індустрії."
   },
   robots: {
     index: true,
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="uk">
       <body>{children}</body>
     </html>
   );

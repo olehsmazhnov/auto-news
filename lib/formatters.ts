@@ -1,9 +1,9 @@
-﻿const compactFormatter = new Intl.NumberFormat("en-US", {
+﻿const compactFormatter = new Intl.NumberFormat("uk-UA", {
   notation: "compact",
   maximumFractionDigits: 1
 });
 
-const dateFormatter = new Intl.DateTimeFormat("en-US", {
+const dateFormatter = new Intl.DateTimeFormat("uk-UA", {
   year: "numeric",
   month: "long",
   day: "numeric"
@@ -21,7 +21,7 @@ export function formatPublishedDate(value: string): string {
   const parsed = new Date(value);
 
   if (Number.isNaN(parsed.getTime())) {
-    return "Unknown date";
+    return "Невідома дата";
   }
 
   return dateFormatter.format(parsed);

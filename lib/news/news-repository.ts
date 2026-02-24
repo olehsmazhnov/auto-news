@@ -1,7 +1,8 @@
-﻿import { getSupabaseClient } from "@/lib/supabase";
+import { DEFAULT_NEWS_CATEGORY } from "@/lib/news/constants";
 import { fallbackNews } from "@/lib/news/fallback-news";
 import { mapNewsRow } from "@/lib/news/news-mapper";
 import { slugify } from "@/lib/news/slug";
+import { getSupabaseClient } from "@/lib/supabase";
 import type { CategoryCount, NewsItem } from "@/types/news";
 
 type NewsRow = {
@@ -9,6 +10,7 @@ type NewsRow = {
   title: string | null;
   excerpt: string | null;
   summary: string | null;
+  source_url: string | null;
   image: string | null;
   image_url: string | null;
   date: string | null;
@@ -21,8 +23,9 @@ type NewsRow = {
 };
 
 const NEWS_SELECT =
-  "id,title,excerpt,summary,image,image_url,date,published_at,views,view_count,category,is_featured,is_popular";
+  "id,title,excerpt,summary,source_url,image,image_url,date,published_at,views,view_count,category,is_featured,is_popular";
 const SLUG_LOOKUP_LIMIT = 2000;
+const DEFAULT_CATEGORY_KEY = DEFAULT_NEWS_CATEGORY.toLowerCase();
 
 function sortByDateDesc(news: NewsItem[]): NewsItem[] {
   return [...news].sort((a, b) => {
@@ -46,14 +49,20 @@ function getFallbackBySlug(slug: string): NewsItem | null {
 }
 
 function getFallbackCategoryCounts(): CategoryCount[] {
-  const counts = fallbackNews.reduce<Record<string, number>>((acc, item) => {
-    acc[item.category] = (acc[item.category] ?? 0) + 1;
-    return acc;
-  }, {});
+  return [
+    {
+      category: DEFAULT_NEWS_CATEGORY,
+      count: fallbackNews.length,
+    },
+  ];
+}
 
-  return Object.entries(counts)
-    .map(([category, count]) => ({ category, count }))
-    .sort((a, b) => b.count - a.count);
+function normalizeCategoryKey(category: string): string {
+  return category.trim().toLowerCase();
+}
+
+function isDefaultNewsCategory(category: string): boolean {
+  return normalizeCategoryKey(category) === DEFAULT_CATEGORY_KEY;
 }
 
 export async function getLatestNews(limit = 12): Promise<NewsItem[]> {
@@ -180,26 +189,25 @@ export async function getNewsBySlug(slug: string): Promise<NewsItem | null> {
   return match ?? getFallbackBySlug(normalizedSlug);
 }
 
-export async function getRelatedNews(category: string, excludedId: number, limit = 4): Promise<NewsItem[]> {
+export async function getRelatedNews(excludedId: number, limit = 4): Promise<NewsItem[]> {
   const supabase = getSupabaseClient();
 
   if (!supabase) {
     return sortedFallback()
-      .filter((item) => item.category === category && item.id !== excludedId)
+      .filter((item) => item.id !== excludedId)
       .slice(0, limit);
   }
 
   const { data, error } = await supabase
     .from("news_items")
     .select(NEWS_SELECT)
-    .eq("category", category)
     .neq("id", excludedId)
     .order("published_at", { ascending: false })
     .limit(limit);
 
   if (error || !data) {
     return sortedFallback()
-      .filter((item) => item.category === category && item.id !== excludedId)
+      .filter((item) => item.id !== excludedId)
       .slice(0, limit);
   }
 
@@ -207,25 +215,24 @@ export async function getRelatedNews(category: string, excludedId: number, limit
 }
 
 export async function getNewsByCategory(category: string, limit = 24): Promise<NewsItem[]> {
+  if (!isDefaultNewsCategory(category)) {
+    return [];
+  }
+
   const supabase = getSupabaseClient();
 
   if (!supabase) {
-    return sortedFallback()
-      .filter((item) => item.category.toLowerCase() === category.toLowerCase())
-      .slice(0, limit);
+    return sortedFallback().slice(0, limit);
   }
 
   const { data, error } = await supabase
     .from("news_items")
     .select(NEWS_SELECT)
-    .ilike("category", category)
     .order("published_at", { ascending: false })
     .limit(limit);
 
   if (error || !data) {
-    return sortedFallback()
-      .filter((item) => item.category.toLowerCase() === category.toLowerCase())
-      .slice(0, limit);
+    return sortedFallback().slice(0, limit);
   }
 
   return data.map((row) => mapNewsRow(row as NewsRow));
@@ -238,24 +245,18 @@ export async function getCategoryCounts(): Promise<CategoryCount[]> {
     return getFallbackCategoryCounts();
   }
 
-  const { data, error } = await supabase.from("news_items").select("category");
+  const { count, error } = await supabase
+    .from("news_items")
+    .select("id", { head: true, count: "exact" });
 
-  if (error || !data) {
+  if (error || typeof count !== "number") {
     return getFallbackCategoryCounts();
   }
 
-  const counts = data.reduce<Record<string, number>>((acc, row) => {
-    const category = (row.category as string | null)?.trim();
-
-    if (!category) {
-      return acc;
-    }
-
-    acc[category] = (acc[category] ?? 0) + 1;
-    return acc;
-  }, {});
-
-  return Object.entries(counts)
-    .map(([category, count]) => ({ category, count }))
-    .sort((a, b) => b.count - a.count);
+  return [
+    {
+      category: DEFAULT_NEWS_CATEGORY,
+      count,
+    },
+  ];
 }

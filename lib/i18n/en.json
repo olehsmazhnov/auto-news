@@ -1,0 +1,66 @@
+{
+    "common": {
+        "views": "views",
+        "home": "Home",
+        "source": "Source",
+        "unknownDate": "Unknown date",
+        "ad": "AD"
+    },
+    "header": {
+        "search": "Search",
+        "menu": "Menu"
+    },
+    "home": {
+        "latestNews": "Latest news",
+        "loadMore": "Load more"
+    },
+    "article": {
+        "relatedStories": "Related stories",
+        "notFound": "News not found"
+    },
+    "sidebar": {
+        "popular": "Popular",
+        "feed": "Feed",
+        "currentMode": "Current mode",
+        "subscribeTitle": "Subscribe to our newsletter",
+        "subscribeDescription": "Get the latest auto news in one digest.",
+        "subscribeButton": "Subscribe"
+    },
+    "footer": {
+        "tagline": "Your source for the latest automotive world updates.",
+        "sections": "Sections",
+        "news": "News",
+        "testDrives": "Test drives",
+        "reviews": "Reviews",
+        "tech": "Tech",
+        "company": "Company",
+        "aboutUs": "About us",
+        "contacts": "Contacts",
+        "advertising": "Advertising",
+        "jobs": "Jobs",
+        "subscribe": "Subscribe",
+        "subscribeText": "Get latest news by email",
+        "emailPlaceholder": "Your email",
+        "copyright": "© {year} AutoNews. All rights reserved."
+    },
+    "newsletter": {
+        "title": "Newsletter",
+        "description": "Get a short daily digest with the most important car news.",
+        "button": "Subscribe",
+        "tagline": "Automotive updates, test drives, EV launches, and industry trends in one feed."
+    },
+    "notFound": {
+        "title": "Page not found",
+        "description": "The story you requested does not exist or has been removed.",
+        "backHome": "Return to homepage"
+    },
+    "categories": {
+        "title": "Categories",
+        "default": "News"
+    },
+    "meta": {
+        "siteTitle": "AutoNews - Automotive News and Market Insights",
+        "siteDescription": "AutoNews tracks EV launches, vehicle reviews, motorsport highlights, and automotive industry trends.",
+        "categoryFeed": "{category} feed"
+    }
+}

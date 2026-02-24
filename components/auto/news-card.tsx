@@ -44,7 +44,7 @@ export function NewsCard({ title, excerpt, image, date, views, category, href, f
           </div>
           <div className="flex items-center gap-1">
             <EyeIcon className="h-4 w-4" />
-            <span>{views}</span>
+            <span>{views} переглядів</span>
           </div>
         </div>
       </article>
@@ -79,7 +79,7 @@ export function NewsCard({ title, excerpt, image, date, views, category, href, f
           </div>
           <div className="flex items-center gap-1">
             <EyeIcon className="h-3 w-3" />
-            <span>{views}</span>
+            <span>{views} переглядів</span>
           </div>
         </div>
       </div>

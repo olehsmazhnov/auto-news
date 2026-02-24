@@ -3,9 +3,9 @@
 export default function NotFoundPage() {
   return (
     <main className="container not-found">
-      <h1>Page not found</h1>
-      <p>The story you requested does not exist or has been removed.</p>
-      <Link href="/">Return to homepage</Link>
+      <h1>Сторінку не знайдено</h1>
+      <p>Новина, яку ви шукаєте, не існує або була видалена.</p>
+      <Link href="/">Повернутися на головну</Link>
     </main>
   );
 }

@@ -14,14 +14,14 @@ export function SiteFooter() {
             <span>NEWS</span>
           </h2>
           <p>
-            Automotive updates, test drives, EV launches, and industry trends in one
-            feed.
+            Автоновини, тест-драйви, прем'єри електромобілів та тренди індустрії в
+            одній стрічці.
           </p>
         </section>
 
         <section>
-          <h3>Newsletter</h3>
-          <p>Get a short daily digest with the most important car news.</p>
+          <h3>Розсилка</h3>
+          <p>Отримуйте короткий щоденний дайджест з найважливішими автоновинами.</p>
           <form className="newsletter-form" onSubmit={submit}>
             <input
               aria-label="Email"
@@ -30,7 +30,7 @@ export function SiteFooter() {
               value={email}
               onChange={(event) => setEmail(event.target.value)}
             />
-            <button type="submit">Subscribe</button>
+            <button type="submit">Підписатися</button>
           </form>
           {message ? (
             <p className={status === "error" ? "status-error" : "status-success"}>{message}</p>
@@ -38,7 +38,7 @@ export function SiteFooter() {
         </section>
       </div>
 
-      <div className="container footer-bottom">Copyright {new Date().getFullYear()} AutoNews.</div>
+      <div className="container footer-bottom">© {new Date().getFullYear()} AutoNews.</div>
     </footer>
   );
 }

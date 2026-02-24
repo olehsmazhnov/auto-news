@@ -8,6 +8,7 @@ export type NewsItem = {
   title: string;
   excerpt: string;
   summary: string;
+  sourceAttributionUrl?: string | null;
   imageUrl: string;
   publishedAt: string;
   viewsLabel: string;
