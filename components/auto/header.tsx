@@ -19,14 +19,14 @@ export function Header() {
               <a href="#" className="text-sm hover:text-blue-600 transition-colors">EV</a>
             </nav>
           </div>
-          <div className="flex items-center gap-4">
+          {/* <div className="flex items-center gap-4">
             <IconButton>
               <SearchIcon className="h-5 w-5" />
             </IconButton>
             <IconButton className="md:hidden">
               <MenuIcon className="h-5 w-5" />
             </IconButton>
-          </div>
+          </div> */}
         </div>
       </div>
     </header>

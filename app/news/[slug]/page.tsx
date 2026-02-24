@@ -19,8 +19,36 @@ type NewsArticlePageProps = {
 
 export const revalidate = 120;
 
+const FALLBACK_ARTICLE_IMAGE_URL =
+  "https://images.unsplash.com/photo-1493238792000-8113da705763?auto=format&fit=crop&w=1400&q=80";
+
 function getArticleUrl(slug: string): string {
   return `${env.siteUrl}/news/${slug}`;
+}
+
+function normalizeArticleImageUrl(rawUrl: string): string {
+  if (!rawUrl) {
+    return FALLBACK_ARTICLE_IMAGE_URL;
+  }
+
+  if (rawUrl.startsWith("/")) {
+    return rawUrl;
+  }
+
+  try {
+    const parsed = new URL(rawUrl);
+    return parsed.protocol === "https:" ? rawUrl : FALLBACK_ARTICLE_IMAGE_URL;
+  } catch {
+    return FALLBACK_ARTICLE_IMAGE_URL;
+  }
+}
+
+function toAbsoluteSiteUrl(pathOrUrl: string): string {
+  try {
+    return new URL(pathOrUrl, env.siteUrl).toString();
+  } catch {
+    return FALLBACK_ARTICLE_IMAGE_URL;
+  }
 }
 
 type ResolvedArticle = {
@@ -95,6 +123,7 @@ export async function generateMetadata({ params }: NewsArticlePageProps): Promis
 
   const article = resolved.article;
   const canonicalSlug = resolved.canonicalSlug;
+  const imageUrl = normalizeArticleImageUrl(article.imageUrl);
   const canonicalPath = `/news/${canonicalSlug}`;
   const canonicalUrl = getArticleUrl(canonicalSlug);
 
@@ -125,7 +154,7 @@ export async function generateMetadata({ params }: NewsArticlePageProps): Promis
       tags: [article.category],
       images: [
         {
-          url: article.imageUrl,
+          url: imageUrl,
           alt: article.title
         }
       ]
@@ -134,7 +163,7 @@ export async function generateMetadata({ params }: NewsArticlePageProps): Promis
       card: "summary_large_image",
       title: article.title,
       description: article.excerpt,
-      images: [article.imageUrl]
+      images: [imageUrl]
     },
     other: {
       "article:published_time": article.publishedAt,
@@ -155,6 +184,8 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
 
   const article = resolvedArticle.article;
   const canonicalSlug = resolvedArticle.canonicalSlug;
+  const articleImageUrl = normalizeArticleImageUrl(article.imageUrl);
+  const absoluteArticleImageUrl = toAbsoluteSiteUrl(articleImageUrl);
 
   if (resolvedArticle.shouldRedirect) {
     permanentRedirect(`/news/${canonicalSlug}`);
@@ -166,7 +197,7 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
     "@type": "NewsArticle",
     headline: article.title,
     description: article.excerpt,
-    image: [article.imageUrl],
+    image: [absoluteArticleImageUrl],
     datePublished: article.publishedAt,
     dateModified: article.publishedAt,
     articleSection: article.category,
@@ -236,7 +267,7 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
 
                 <div className="relative overflow-hidden rounded-lg aspect-[16/9] mb-6">
                   <Image
-                    src={article.imageUrl}
+                    src={articleImageUrl}
                     alt={article.title}
                     fill
                     className="object-cover"

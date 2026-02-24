@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { Header } from "@/components/auto/header";
 import { NewsCard } from "@/components/auto/news-card";
 import { Sidebar } from "@/components/auto/sidebar";
@@ -26,6 +29,12 @@ type AutoNewsHomeProps = {
 };
 
 export function AutoNewsHome({ featuredNews, newsList, popularNews }: AutoNewsHomeProps) {
+  const INITIAL_VISIBLE_NEWS = 9;
+  const LOAD_MORE_STEP = 6;
+  const [visibleNewsCount, setVisibleNewsCount] = useState(INITIAL_VISIBLE_NEWS);
+  const visibleNews = newsList.slice(0, visibleNewsCount);
+  const hasMoreNews = visibleNewsCount < newsList.length;
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -38,17 +47,25 @@ export function AutoNewsHome({ featuredNews, newsList, popularNews }: AutoNewsHo
             <div className="border-t pt-8">
               <h2 className="text-xl font-semibold mb-6">Latest news</h2>
               <div className="space-y-4">
-                {newsList.map((news) => (
+                {visibleNews.map((news) => (
                   <NewsCard key={news.href} {...news} />
                 ))}
               </div>
             </div>
 
-            <div className="flex justify-center pt-4">
-              <button className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                Load more
-              </button>
-            </div>
+            {hasMoreNews ? (
+              <div className="flex justify-center pt-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setVisibleNewsCount((current) => Math.min(current + LOAD_MORE_STEP, newsList.length));
+                  }}
+                  className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Load more
+                </button>
+              </div>
+            ) : null}
           </div>
 
           <div className="lg:col-span-1">

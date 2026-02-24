@@ -13,9 +13,17 @@ type CategoryPageProps = {
 
 export const revalidate = 120;
 
+function decodeCategoryParam(value: string): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const { category: encodedCategory } = await params;
-  const category = decodeURIComponent(encodedCategory);
+  const category = decodeCategoryParam(encodedCategory);
 
   return {
     title: `${category} News`,
@@ -28,7 +36,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { category: encodedCategory } = await params;
-  const category = decodeURIComponent(encodedCategory);
+  const category = decodeCategoryParam(encodedCategory);
 
   const [items, categoryCounts, popular] = await Promise.all([
     getNewsByCategory(category, 24),

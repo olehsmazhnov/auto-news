@@ -21,7 +21,7 @@ function mapNewsForCard(item: NewsItem) {
 export default async function HomePage() {
   const [featuredFromDb, latest, popular] = await Promise.all([
     getFeaturedNews(),
-    getLatestNews(16),
+    getLatestNews(30),
     getPopularNews(4)
   ]);
 
@@ -29,7 +29,6 @@ export default async function HomePage() {
   const featuredNews = featuredItem ? mapNewsForCard(featuredItem) : null;
   const newsList = latest
     .filter((item) => (featuredItem ? item.id !== featuredItem.id : true))
-    .slice(0, 9)
     .map(mapNewsForCard);
 
   const popularNews = popular.map((item) => ({
