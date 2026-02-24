@@ -9,6 +9,12 @@ const dateFormatter = new Intl.DateTimeFormat("uk-UA", {
   day: "numeric"
 });
 
+const compactDateFormatter = new Intl.DateTimeFormat("uk-UA", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit"
+});
+
 export function formatViewCount(value: number): string {
   if (!Number.isFinite(value) || value <= 0) {
     return "0";
@@ -25,4 +31,14 @@ export function formatPublishedDate(value: string): string {
   }
 
   return dateFormatter.format(parsed);
+}
+
+export function formatPublishedDateCompact(value: string): string {
+  const parsed = new Date(value);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return "Невідома дата";
+  }
+
+  return compactDateFormatter.format(parsed);
 }

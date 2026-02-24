@@ -10,6 +10,7 @@ type CardNews = {
   excerpt: string;
   image: string;
   date: string;
+  mobileDate?: string;
   views: string;
   category: string;
   href: string;

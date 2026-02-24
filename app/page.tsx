@@ -1,5 +1,5 @@
 import { AutoNewsHome } from "@/components/auto/auto-news-home";
-import { formatPublishedDate } from "@/lib/formatters";
+import { formatPublishedDate, formatPublishedDateCompact } from "@/lib/formatters";
 import { getFeaturedNews, getLatestNews, getPopularNews } from "@/lib/news/news-repository";
 import { toNewsSlug } from "@/lib/news/slug";
 import type { NewsItem } from "@/types/news";
@@ -12,6 +12,7 @@ function mapNewsForCard(item: NewsItem) {
     excerpt: item.excerpt,
     image: item.imageUrl,
     date: formatPublishedDate(item.publishedAt),
+    mobileDate: formatPublishedDateCompact(item.publishedAt),
     views: item.viewsLabel,
     category: item.category,
     href: `/news/${toNewsSlug(item)}`

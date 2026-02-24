@@ -6,7 +6,7 @@ import { Header } from "@/components/auto/header";
 import { NewsCard } from "@/components/auto/news-card";
 import { Sidebar } from "@/components/auto/sidebar";
 import { env } from "@/lib/env";
-import { formatPublishedDate } from "@/lib/formatters";
+import { formatPublishedDate, formatPublishedDateCompact } from "@/lib/formatters";
 import { DEFAULT_NEWS_CATEGORY } from "@/lib/news/constants";
 import { getLatestNews, getNewsById, getNewsBySlug, getPopularNews, getRelatedNews } from "@/lib/news/news-repository";
 import { parseLegacyNewsIdFromSlug, toNewsSlug } from "@/lib/news/slug";
@@ -262,8 +262,9 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
                 <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{article.title}</h1>
 
                 <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-6">
-                  <span>{formatPublishedDate(article.publishedAt)}</span>
-                  <span>{article.viewsLabel} переглядів</span>
+                  <span className="sm:hidden">{formatPublishedDateCompact(article.publishedAt)}</span>
+                  <span className="hidden sm:inline">{formatPublishedDate(article.publishedAt)}</span>
+                  <span className="hidden sm:inline">{article.viewsLabel} переглядів</span>
                 </div>
 
                 <div className="relative overflow-hidden rounded-lg aspect-[16/9] mb-6">
@@ -306,6 +307,7 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
                         excerpt={item.excerpt}
                         image={item.imageUrl}
                         date={formatPublishedDate(item.publishedAt)}
+                        mobileDate={formatPublishedDateCompact(item.publishedAt)}
                         views={item.viewsLabel}
                         category={item.category}
                         href={`/news/${toNewsSlug(item)}`}

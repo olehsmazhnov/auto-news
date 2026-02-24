@@ -7,13 +7,14 @@ interface NewsCardProps {
   excerpt: string;
   image: string;
   date: string;
+  mobileDate?: string;
   views: string;
   category: string;
   href: string;
   featured?: boolean;
 }
 
-export function NewsCard({ title, excerpt, image, date, views, category, href, featured = false }: NewsCardProps) {
+export function NewsCard({ title, excerpt, image, date, mobileDate, views, category, href, featured = false }: NewsCardProps) {
   if (featured) {
     return (
       <article className="group">
@@ -37,12 +38,13 @@ export function NewsCard({ title, excerpt, image, date, views, category, href, f
         <p className="text-gray-600 mb-3 line-clamp-2">
           {excerpt}
         </p>
-        <div className="flex items-center gap-4 text-sm text-gray-500">
+        <div className="flex items-center gap-3 sm:gap-4 text-sm text-gray-500">
           <div className="flex items-center gap-1">
             <ClockIcon className="h-4 w-4" />
-            <span>{date}</span>
+            <span className="sm:hidden">{mobileDate ?? date}</span>
+            <span className="hidden sm:inline">{date}</span>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="hidden sm:flex items-center gap-1">
             <EyeIcon className="h-4 w-4" />
             <span>{views} переглядів</span>
           </div>
@@ -52,8 +54,8 @@ export function NewsCard({ title, excerpt, image, date, views, category, href, f
   }
 
   return (
-    <article className="group flex gap-4 p-4 rounded-lg hover:bg-gray-50 transition-colors">
-      <Link href={href} className="relative overflow-hidden rounded-lg w-48 h-32 flex-shrink-0">
+    <article className="group flex flex-col sm:flex-row gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg hover:bg-gray-50 transition-colors">
+      <Link href={href} className="relative overflow-hidden rounded-lg w-full h-44 sm:w-48 sm:h-32 flex-shrink-0">
         <ImageWithFallback
           src={image}
           alt={title}
@@ -66,18 +68,19 @@ export function NewsCard({ title, excerpt, image, date, views, category, href, f
             {category}
           </span>
         </div>
-        <h3 className="text-lg mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
+        <h3 className="text-xl sm:text-lg mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
           <Link href={href}>{title}</Link>
         </h3>
         <p className="text-sm text-gray-600 mb-3 line-clamp-2 flex-1">
           {excerpt}
         </p>
-        <div className="flex items-center gap-4 text-xs text-gray-500">
+        <div className="flex items-center gap-3 sm:gap-4 text-xs text-gray-500">
           <div className="flex items-center gap-1">
             <ClockIcon className="h-3 w-3" />
-            <span>{date}</span>
+            <span className="sm:hidden">{mobileDate ?? date}</span>
+            <span className="hidden sm:inline">{date}</span>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="hidden sm:flex items-center gap-1">
             <EyeIcon className="h-3 w-3" />
             <span>{views} переглядів</span>
           </div>
