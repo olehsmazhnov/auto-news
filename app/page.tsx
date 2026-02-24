@@ -1,6 +1,7 @@
 import { AutoNewsHome } from "@/components/auto/auto-news-home";
 import { formatPublishedDate, formatPublishedDateCompact } from "@/lib/formatters";
-import { getFeaturedNews, getLatestNews, getPopularNews } from "@/lib/news/news-repository";
+import { NEWS_PAGE_SIZE } from "@/lib/news/constants";
+import { getFeaturedNews, getLatestNewsPage, getPopularNews } from "@/lib/news/news-repository";
 import { toNewsSlug } from "@/lib/news/slug";
 import type { NewsItem } from "@/types/news";
 
@@ -20,16 +21,17 @@ function mapNewsForCard(item: NewsItem) {
 }
 
 export default async function HomePage() {
-  const [featuredFromDb, latest, popular] = await Promise.all([
+  const [featuredFromDb, latestPage, popular] = await Promise.all([
     getFeaturedNews(),
-    getLatestNews(30),
+    getLatestNewsPage(1, NEWS_PAGE_SIZE + 1),
     getPopularNews(4)
   ]);
 
-  const featuredItem = featuredFromDb ?? latest[0] ?? null;
+  const featuredItem = featuredFromDb ?? latestPage.items[0] ?? null;
   const featuredNews = featuredItem ? mapNewsForCard(featuredItem) : null;
-  const newsList = latest
+  const newsList = latestPage.items
     .filter((item) => (featuredItem ? item.id !== featuredItem.id : true))
+    .slice(0, NEWS_PAGE_SIZE)
     .map(mapNewsForCard);
 
   const popularNews = popular.map((item) => ({
@@ -44,6 +46,10 @@ export default async function HomePage() {
       featuredNews={featuredNews}
       newsList={newsList}
       popularNews={popularNews}
+      currentPage={1}
+      totalPages={latestPage.totalPages}
+      firstPageHref="/"
+      pageHrefPrefix="/news/page"
     />
   );
 }

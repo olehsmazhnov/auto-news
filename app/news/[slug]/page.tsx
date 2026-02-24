@@ -7,7 +7,7 @@ import { NewsCard } from "@/components/auto/news-card";
 import { Sidebar } from "@/components/auto/sidebar";
 import { env } from "@/lib/env";
 import { formatPublishedDate, formatPublishedDateCompact } from "@/lib/formatters";
-import { DEFAULT_NEWS_CATEGORY } from "@/lib/news/constants";
+import { toCategorySlug } from "@/lib/news/category";
 import { getLatestNews, getNewsById, getNewsBySlug, getPopularNews, getRelatedNews } from "@/lib/news/news-repository";
 import { parseLegacyNewsIdFromSlug, toNewsSlug } from "@/lib/news/slug";
 import type { NewsItem } from "@/types/news";
@@ -50,6 +50,29 @@ function toAbsoluteSiteUrl(pathOrUrl: string): string {
   } catch {
     return FALLBACK_ARTICLE_IMAGE_URL;
   }
+}
+
+function withImageSize(url: string, width: number, height: number): string {
+  try {
+    const parsed = new URL(url);
+    parsed.searchParams.set("w", String(width));
+    parsed.searchParams.set("h", String(height));
+    parsed.searchParams.set("fit", "crop");
+    return parsed.toString();
+  } catch {
+    return url;
+  }
+}
+
+function buildArticleImageVariants(absoluteUrl: string): string[] {
+  const variants = [
+    absoluteUrl,
+    withImageSize(absoluteUrl, 1200, 675),
+    withImageSize(absoluteUrl, 1200, 900),
+    withImageSize(absoluteUrl, 1200, 1200)
+  ];
+
+  return [...new Set(variants)];
 }
 
 type ResolvedArticle = {
@@ -125,14 +148,16 @@ export async function generateMetadata({ params }: NewsArticlePageProps): Promis
   const article = resolved.article;
   const canonicalSlug = resolved.canonicalSlug;
   const imageUrl = normalizeArticleImageUrl(article.imageUrl);
+  const absoluteImageUrl = toAbsoluteSiteUrl(imageUrl);
+  const imageVariants = buildArticleImageVariants(absoluteImageUrl);
   const canonicalPath = `/news/${canonicalSlug}`;
   const canonicalUrl = getArticleUrl(canonicalSlug);
 
   return {
     title: article.title,
     description: article.excerpt,
-    category: DEFAULT_NEWS_CATEGORY,
-    keywords: [DEFAULT_NEWS_CATEGORY, "automotive news", "car news", article.title],
+    category: article.category,
+    keywords: [article.category, "automotive news", "car news", article.title],
     alternates: {
       canonical: canonicalPath
     },
@@ -151,24 +176,22 @@ export async function generateMetadata({ params }: NewsArticlePageProps): Promis
       description: article.excerpt,
       url: canonicalUrl,
       publishedTime: article.publishedAt,
-      section: DEFAULT_NEWS_CATEGORY,
-      tags: [DEFAULT_NEWS_CATEGORY],
-      images: [
-        {
-          url: imageUrl,
-          alt: article.title
-        }
-      ]
+      section: article.category,
+      tags: [article.category],
+      images: imageVariants.map((url) => ({
+        url,
+        alt: article.title
+      }))
     },
     twitter: {
       card: "summary_large_image",
       title: article.title,
       description: article.excerpt,
-      images: [imageUrl]
+      images: [imageVariants[0]]
     },
     other: {
       "article:published_time": article.publishedAt,
-      "article:section": DEFAULT_NEWS_CATEGORY
+      "article:section": article.category
     }
   };
 }
@@ -187,26 +210,31 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
   const canonicalSlug = resolvedArticle.canonicalSlug;
   const articleImageUrl = normalizeArticleImageUrl(article.imageUrl);
   const absoluteArticleImageUrl = toAbsoluteSiteUrl(articleImageUrl);
+  const articleImageVariants = buildArticleImageVariants(absoluteArticleImageUrl);
 
   if (resolvedArticle.shouldRedirect) {
     permanentRedirect(`/news/${canonicalSlug}`);
   }
 
   const canonicalUrl = getArticleUrl(canonicalSlug);
+  const editorialPageUrl = `${env.siteUrl}/about`;
   const articleJsonLd = {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
     headline: article.title,
     description: article.excerpt,
-    image: [absoluteArticleImageUrl],
+    image: articleImageVariants,
     datePublished: article.publishedAt,
     dateModified: article.publishedAt,
-    articleSection: DEFAULT_NEWS_CATEGORY,
+    articleSection: article.category,
     mainEntityOfPage: canonicalUrl,
     url: canonicalUrl,
+    isAccessibleForFree: true,
     author: {
       "@type": "Organization",
-      name: "AutoNews Editorial Team"
+      name: "AutoNews Editorial Team",
+      url: editorialPageUrl,
+      sameAs: [editorialPageUrl]
     },
     publisher: {
       "@type": "Organization",
@@ -243,10 +271,10 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
                 </Link>
                 <span> / </span>
                 <Link
-                  href="/"
+                  href={`/category/${toCategorySlug(article.category)}`}
                   className="hover:text-blue-600 transition-colors"
                 >
-                  {DEFAULT_NEWS_CATEGORY}
+                  {article.category}
                 </Link>
                 <span> / </span>
                 <span className="text-gray-700">{article.title}</span>
@@ -255,7 +283,7 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
               <section className="bg-white rounded-lg border p-6 md:p-8">
                 <div className="mb-4">
                   <span className="inline-block px-3 py-1 text-xs font-semibold bg-blue-600 text-white rounded">
-                    {DEFAULT_NEWS_CATEGORY}
+                    {article.category}
                   </span>
                 </div>
 
