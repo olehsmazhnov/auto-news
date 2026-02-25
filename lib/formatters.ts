@@ -6,13 +6,19 @@
 const dateFormatter = new Intl.DateTimeFormat("uk-UA", {
   year: "numeric",
   month: "long",
-  day: "numeric"
+  day: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false
 });
 
 const compactDateFormatter = new Intl.DateTimeFormat("uk-UA", {
   year: "numeric",
   month: "2-digit",
-  day: "2-digit"
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false
 });
 
 export function formatViewCount(value: number): string {

@@ -366,7 +366,7 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
                   Ваше джерело останніх новин автомобільного світу.
                 </p>
               </div>
-              <div>
+              {/* <div>
                 <h4 className="font-semibold mb-4">Підписка</h4>
                 <p className="text-sm text-gray-400 mb-4">Отримуйте останні новини на пошту</p>
                 <input
@@ -374,7 +374,7 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
                   placeholder="Ваш email"
                   className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-sm focus:outline-none focus:border-blue-500"
                 />
-              </div>
+              </div> */}
             </div>
             <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
               © 2026 AutoNews. Всі права захищено.

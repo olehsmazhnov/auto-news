@@ -43,7 +43,11 @@ function sortByDateDesc(news: NewsItem[]): NewsItem[] {
   return [...news].sort((a, b) => {
     const aTime = new Date(a.publishedAt).getTime();
     const bTime = new Date(b.publishedAt).getTime();
-    return bTime - aTime;
+    if (bTime !== aTime) {
+      return bTime - aTime;
+    }
+
+    return b.id - a.id;
   });
 }
 
@@ -189,6 +193,7 @@ export async function getLatestNewsPage(page = 1, limit = NEWS_PAGE_SIZE): Promi
     .from("news_items")
     .select(NEWS_SELECT, { count: "exact" })
     .order("published_at", { ascending: false })
+    .order("id", { ascending: false })
     .range(offset, offset + safeLimit - 1);
 
   if (error || !data) {
@@ -363,6 +368,7 @@ export async function getNewsByCategoryPage(
     .select(NEWS_SELECT, { count: "exact" })
     .ilike("category", normalizedCategory)
     .order("published_at", { ascending: false })
+    .order("id", { ascending: false })
     .range(offset, offset + safeLimit - 1);
 
   if (error || !data) {

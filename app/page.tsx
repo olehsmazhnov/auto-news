@@ -23,7 +23,7 @@ function mapNewsForCard(item: NewsItem) {
 export default async function HomePage() {
   const [featuredFromDb, latestPage, popular] = await Promise.all([
     getFeaturedNews(),
-    getLatestNewsPage(1, NEWS_PAGE_SIZE + 1),
+    getLatestNewsPage(1, NEWS_PAGE_SIZE),
     getPopularNews(4)
   ]);
 
