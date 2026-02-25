@@ -76,6 +76,20 @@ function buildArticleImageVariants(absoluteUrl: string): string[] {
   return [...new Set(variants)];
 }
 
+function getSourceDisplayLabel(sourceUrl: string): string {
+  try {
+    const hostname = new URL(sourceUrl).hostname.toLowerCase().replace(/^www\./, "");
+
+    if (hostname === "focus.ua" || hostname.endsWith(".focus.ua")) {
+      return "Фокус";
+    }
+
+    return hostname;
+  } catch {
+    return sourceUrl;
+  }
+}
+
 type ResolvedArticle = {
   article: NewsItem | null;
   canonicalSlug: string | null;
@@ -212,6 +226,9 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
   const articleImageUrl = normalizeArticleImageUrl(article.imageUrl);
   const absoluteArticleImageUrl = toAbsoluteSiteUrl(articleImageUrl);
   const articleImageVariants = buildArticleImageVariants(absoluteArticleImageUrl);
+  const sourceDisplayLabel = article.sourceAttributionUrl
+    ? getSourceDisplayLabel(article.sourceAttributionUrl)
+    : null;
 
   if (resolvedArticle.shouldRedirect) {
     permanentRedirect(`/news/${canonicalSlug}`);
@@ -318,7 +335,7 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
                         rel="noopener noreferrer"
                         className="text-blue-600 hover:underline break-all"
                       >
-                        {article.sourceAttributionUrl}
+                        {sourceDisplayLabel}
                       </a>
                     </p>
                   ) : null}
