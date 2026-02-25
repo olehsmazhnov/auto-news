@@ -6,6 +6,7 @@ import { env } from "@/lib/env";
 
 export const metadata: Metadata = {
   metadataBase: new URL(env.siteUrl),
+  applicationName: "AutoNewsUA",
   title: {
     default: "AutoNews - автомобільні новини та огляди ринку",
     template: "%s | AutoNews"
@@ -32,6 +33,16 @@ export const metadata: Metadata = {
     description:
       "AutoNews - огляди електромобілів, тест-драйви, новини автоспорту та тренди автомобільної індустрії."
   },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icon.png", type: "image/png", sizes: "512x512" }
+    ],
+    shortcut: ["/favicon.ico"],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }]
+  },
+  manifest: "/manifest.webmanifest",
   robots: {
     index: true,
     follow: true
