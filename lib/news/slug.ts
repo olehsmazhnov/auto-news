@@ -63,7 +63,15 @@ export function slugify(value: string): string {
   return normalized || "news";
 }
 
-export function toNewsSlug(item: Pick<NewsItem, "title">): string {
+type SluggableNews = Pick<NewsItem, "title"> & Partial<Pick<NewsItem, "slug">>;
+
+export function toNewsSlug(item: SluggableNews): string {
+  const persistedSlug = item.slug?.trim();
+
+  if (persistedSlug) {
+    return slugify(persistedSlug);
+  }
+
   return slugify(item.title);
 }
 

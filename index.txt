@@ -1,5 +1,5 @@
 ﻿create a seo ready site for auto news
-use sql from tablestemp.sql
+use sql from db/index.sql
 we use supabase for now
 use react, maybe next js?
 use TS

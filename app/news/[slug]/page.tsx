@@ -2,6 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
+import { cache } from "react";
 import { Header } from "@/components/auto/header";
 import { NewsCard } from "@/components/auto/news-card";
 import { Sidebar } from "@/components/auto/sidebar";
@@ -81,7 +82,7 @@ type ResolvedArticle = {
   shouldRedirect: boolean;
 };
 
-async function resolveArticleBySlug(slug: string): Promise<ResolvedArticle> {
+const resolveArticleBySlug = cache(async (slug: string): Promise<ResolvedArticle> => {
   const articleFromSlug = await getNewsBySlug(slug);
 
   if (articleFromSlug) {
@@ -121,7 +122,7 @@ async function resolveArticleBySlug(slug: string): Promise<ResolvedArticle> {
     canonicalSlug,
     shouldRedirect: true
   };
-}
+});
 
 export async function generateStaticParams() {
   const latestNews = await getLatestNews(100);

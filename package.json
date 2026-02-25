@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "dev": "nodemon --watch app --watch components --watch lib --watch hooks --watch styles --watch types --watch public --watch .env --watch .env.local --watch next.config.mjs --watch tsconfig.json --ext ts,tsx,js,mjs,css,json --ignore .next --exec \"next dev\"",
+    "dev": "next dev --turbopack",
     "dev:next": "next dev",
     "build": "next build",
     "start": "next start",
@@ -25,7 +25,6 @@
     "@types/react-dom": "^19.0.4",
     "eslint": "^9.21.0",
     "eslint-config-next": "^15.2.3",
-    "nodemon": "^3.1.10",
     "tailwindcss": "^4.1.12",
     "typescript": "^5.8.2"
   }

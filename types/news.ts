@@ -5,6 +5,7 @@
 
 export type NewsItem = {
   id: number;
+  slug?: string;
   title: string;
   excerpt: string;
   summary: string;

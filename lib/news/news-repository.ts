@@ -4,9 +4,11 @@ import { mapNewsRow } from "@/lib/news/news-mapper";
 import { slugify } from "@/lib/news/slug";
 import { getSupabaseClient } from "@/lib/supabase";
 import type { CategoryCount, NewsItem } from "@/types/news";
+import { unstable_cache } from "next/cache";
 
 type NewsRow = {
   id: number;
+  slug: string | null;
   title: string | null;
   excerpt: string | null;
   summary: string | null;
@@ -22,8 +24,9 @@ type NewsRow = {
   is_popular: boolean | null;
 };
 
-type CategoryRow = {
+type CategoryCountRpcRow = {
   category: string | null;
+  count: number | string | null;
 };
 
 export type PaginatedNewsResult = {
@@ -35,9 +38,8 @@ export type PaginatedNewsResult = {
 };
 
 const NEWS_SELECT =
-  "id,title,excerpt,summary,source_url,image,image_url,date,published_at,views,view_count,category,is_featured,is_popular";
-const SLUG_LOOKUP_LIMIT = 2000;
-const MAX_CATEGORY_ROWS = 5000;
+  "id,slug,title,excerpt,summary,source_url,image,image_url,date,published_at,views,view_count,category,is_featured,is_popular";
+const NEWS_DATA_REVALIDATE_SECONDS = 120;
 
 function sortByDateDesc(news: NewsItem[]): NewsItem[] {
   return [...news].sort((a, b) => {
@@ -127,6 +129,46 @@ function aggregateCategoryCounts(items: Array<{ category: string | null | undefi
   }
 
   return [...byCategory.values()].sort((a, b) => {
+    if (b.count !== a.count) {
+      return b.count - a.count;
+    }
+
+    return a.category.localeCompare(b.category);
+  });
+}
+
+function parseCountValue(value: number | string | null | undefined): number {
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 0;
+  }
+
+  if (typeof value === "string") {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? Math.max(0, Math.floor(parsed)) : 0;
+  }
+
+  return 0;
+}
+
+function mapCategoryCountRows(rows: CategoryCountRpcRow[]): CategoryCount[] {
+  const byCategory = new Map<string, CategoryCount>();
+
+  for (const row of rows) {
+    const category = row.category?.trim() || DEFAULT_NEWS_CATEGORY;
+    const key = normalizeCategoryKey(category);
+    const count = parseCountValue(row.count);
+    const existing = byCategory.get(key);
+
+    if (existing) {
+      existing.count += count;
+    } else {
+      byCategory.set(key, { category, count });
+    }
+  }
+
+  const mapped = [...byCategory.values()].filter((item) => item.count > 0);
+
+  return mapped.sort((a, b) => {
     if (b.count !== a.count) {
       return b.count - a.count;
     }
@@ -236,14 +278,13 @@ export async function getFeaturedNews(): Promise<NewsItem | null> {
   return mapNewsRow(data as NewsRow);
 }
 
-export async function getPopularNews(limit = 5): Promise<NewsItem[]> {
-  const safeLimit = normalizeLimit(limit);
+async function fetchPopularNews(limit: number): Promise<NewsItem[]> {
   const supabase = getSupabaseClient();
 
   if (!supabase) {
     return sortByDateDesc(fallbackNews)
       .filter((item) => item.isPopular)
-      .slice(0, safeLimit);
+      .slice(0, limit);
   }
 
   const popularResult = await supabase
@@ -251,7 +292,7 @@ export async function getPopularNews(limit = 5): Promise<NewsItem[]> {
     .select(NEWS_SELECT)
     .eq("is_popular", true)
     .order("published_at", { ascending: false })
-    .limit(safeLimit);
+    .limit(limit);
 
   if (!popularResult.error && popularResult.data && popularResult.data.length > 0) {
     return popularResult.data.map((row) => mapNewsRow(row as NewsRow));
@@ -261,15 +302,29 @@ export async function getPopularNews(limit = 5): Promise<NewsItem[]> {
     .from("news_items")
     .select(NEWS_SELECT)
     .order("view_count", { ascending: false })
-    .limit(safeLimit);
+    .limit(limit);
 
   if (fallbackResult.error || !fallbackResult.data) {
     return sortByDateDesc(fallbackNews)
       .sort((a, b) => b.viewCount - a.viewCount)
-      .slice(0, safeLimit);
+      .slice(0, limit);
   }
 
   return fallbackResult.data.map((row) => mapNewsRow(row as NewsRow));
+}
+
+const getCachedPopularNews = unstable_cache(
+  async (limit: number) => fetchPopularNews(limit),
+  ["news-popular-v1"],
+  {
+    revalidate: NEWS_DATA_REVALIDATE_SECONDS,
+    tags: ["news", "news:popular"]
+  }
+);
+
+export async function getPopularNews(limit = 5): Promise<NewsItem[]> {
+  const safeLimit = normalizeLimit(limit);
+  return getCachedPopularNews(safeLimit);
 }
 
 export async function getNewsById(id: number): Promise<NewsItem | null> {
@@ -304,18 +359,15 @@ export async function getNewsBySlug(slug: string): Promise<NewsItem | null> {
   const { data, error } = await supabase
     .from("news_items")
     .select(NEWS_SELECT)
-    .order("published_at", { ascending: false })
-    .limit(SLUG_LOOKUP_LIMIT);
+    .eq("slug", normalizedSlug)
+    .limit(1)
+    .maybeSingle();
 
   if (error || !data) {
     return getFallbackBySlug(normalizedSlug);
   }
 
-  const match = data
-    .map((row) => mapNewsRow(row as NewsRow))
-    .find((item) => slugify(item.title) === normalizedSlug);
-
-  return match ?? getFallbackBySlug(normalizedSlug);
+  return mapNewsRow(data as NewsRow);
 }
 
 export async function getRelatedNews(excludedId: number, limit = 4): Promise<NewsItem[]> {
@@ -351,6 +403,7 @@ export async function getNewsByCategoryPage(
 ): Promise<PaginatedNewsResult> {
   const safePage = normalizePage(page);
   const safeLimit = normalizeLimit(limit);
+  const rawCategory = category.trim();
   const normalizedCategory = normalizeCategoryKey(category);
   const offset = (safePage - 1) * safeLimit;
   const supabase = getSupabaseClient();
@@ -363,13 +416,31 @@ export async function getNewsByCategoryPage(
     return getFallbackCategoryPage(normalizedCategory, safePage, safeLimit);
   }
 
-  const { data, error, count } = await supabase
+  const primaryResult = await supabase
     .from("news_items")
     .select(NEWS_SELECT, { count: "exact" })
-    .ilike("category", normalizedCategory)
+    .eq("category", rawCategory)
     .order("published_at", { ascending: false })
     .order("id", { ascending: false })
     .range(offset, offset + safeLimit - 1);
+
+  let data = primaryResult.data;
+  let count = primaryResult.count;
+  let error = primaryResult.error;
+
+  if ((!data || data.length === 0) && !error && rawCategory !== normalizedCategory) {
+    const fallbackQuery = await supabase
+      .from("news_items")
+      .select(NEWS_SELECT, { count: "exact" })
+      .ilike("category", normalizedCategory)
+      .order("published_at", { ascending: false })
+      .order("id", { ascending: false })
+      .range(offset, offset + safeLimit - 1);
+
+    data = fallbackQuery.data;
+    count = fallbackQuery.count;
+    error = fallbackQuery.error;
+  }
 
   if (error || !data) {
     return getFallbackCategoryPage(normalizedCategory, safePage, safeLimit);
@@ -386,28 +457,37 @@ export async function getNewsByCategory(category: string, limit = 24): Promise<N
   return result.items;
 }
 
-export async function getCategoryCounts(): Promise<CategoryCount[]> {
+async function fetchCategoryCounts(): Promise<CategoryCount[]> {
   const supabase = getSupabaseClient();
 
   if (!supabase) {
     return getFallbackCategoryCounts();
   }
 
-  const { data, error } = await supabase
-    .from("news_items")
-    .select("category")
-    .order("published_at", { ascending: false })
-    .limit(MAX_CATEGORY_ROWS);
+  const { data, error } = await supabase.rpc("get_news_category_counts");
 
   if (error || !data) {
     return getFallbackCategoryCounts();
   }
 
-  const counts = aggregateCategoryCounts(data as CategoryRow[]);
+  const counts = mapCategoryCountRows(data as CategoryCountRpcRow[]);
 
   if (counts.length === 0) {
     return getFallbackCategoryCounts();
   }
 
   return counts;
+}
+
+const getCachedCategoryCounts = unstable_cache(
+  async () => fetchCategoryCounts(),
+  ["news-category-counts-v1"],
+  {
+    revalidate: NEWS_DATA_REVALIDATE_SECONDS,
+    tags: ["news", "news:categories"]
+  }
+);
+
+export async function getCategoryCounts(): Promise<CategoryCount[]> {
+  return getCachedCategoryCounts();
 }

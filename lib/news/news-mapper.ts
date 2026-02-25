@@ -5,6 +5,7 @@ import type { NewsItem } from "@/types/news";
 
 type NewsRow = {
   id: number;
+  slug?: string | null;
   title: string | null;
   excerpt: string | null;
   summary: string | null;
@@ -48,6 +49,8 @@ function normalizeImage(imageUrl: string | null, image: string | null): string {
 }
 
 export function mapNewsRow(row: NewsRow): NewsItem {
+  const normalizedTitle = row.title?.trim() || "Untitled news";
+  const normalizedSlug = row.slug?.trim() || undefined;
   const viewCount = row.view_count ?? 0;
   const normalizedExcerpt = row.excerpt?.trim() || "";
   const summaryCandidate = row.summary?.trim() || normalizedExcerpt;
@@ -63,7 +66,8 @@ export function mapNewsRow(row: NewsRow): NewsItem {
 
   return {
     id: row.id,
-    title: row.title?.trim() || "Untitled news",
+    slug: normalizedSlug,
+    title: normalizedTitle,
     excerpt: normalizedExcerptWithoutSource || "No excerpt available yet.",
     summary: normalizedSummary,
     sourceAttributionUrl,
@@ -71,7 +75,7 @@ export function mapNewsRow(row: NewsRow): NewsItem {
     publishedAt: normalizeDate(row.published_at, row.date),
     viewsLabel: row.views || formatViewCount(viewCount),
     viewCount,
-    category: DEFAULT_NEWS_CATEGORY,
+    category: row.category?.trim() || DEFAULT_NEWS_CATEGORY,
     isFeatured: Boolean(row.is_featured),
     isPopular: Boolean(row.is_popular),
   };
