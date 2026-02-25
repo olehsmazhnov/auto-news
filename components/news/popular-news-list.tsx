@@ -14,7 +14,7 @@ export function PopularNewsList({ items }: PopularNewsListProps) {
         {items.map((item) => (
           <li key={item.id}>
             <Link href={`/news/${toNewsSlug(item)}`}>{item.title}</Link>
-            <span>{item.viewsLabel} переглядів</span>
+            {/* <span>{item.viewsLabel} переглядів</span> */}
           </li>
         ))}
       </ul>

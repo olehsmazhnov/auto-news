@@ -35,7 +35,7 @@ export function Sidebar({ popularNews }: SidebarProps) {
                 <h4 className="text-sm mb-1 line-clamp-2 group-hover:text-blue-600 transition-colors">
                   {item.title}
                 </h4>
-                <p className="hidden sm:block text-xs text-gray-500">{item.views} переглядів</p>
+                {/* <p className="hidden sm:block text-xs text-gray-500">{item.views} переглядів</p> */}
               </div>
             </Link>
           ))}

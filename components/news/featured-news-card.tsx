@@ -25,7 +25,7 @@ export function FeaturedNewsCard({ item }: FeaturedNewsCardProps) {
         <p>{item.excerpt}</p>
         <div className="meta-row">
           <span>{formatPublishedDate(item.publishedAt)}</span>
-          <span>{item.viewsLabel} переглядів</span>
+          {/* <span>{item.viewsLabel} переглядів</span> */}
         </div>
       </div>
     </article>

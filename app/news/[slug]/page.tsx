@@ -281,18 +281,18 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
               </nav>
 
               <section className="bg-white rounded-lg border p-6 md:p-8">
-                <div className="mb-4">
+                {/* <div className="mb-4">
                   <span className="inline-block px-3 py-1 text-xs font-semibold bg-blue-600 text-white rounded">
                     {article.category}
                   </span>
-                </div>
+                </div> */}
 
                 <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{article.title}</h1>
 
                 <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-6">
                   <span className="sm:hidden">{formatPublishedDateCompact(article.publishedAt)}</span>
                   <span className="hidden sm:inline">{formatPublishedDate(article.publishedAt)}</span>
-                  <span className="hidden sm:inline">{article.viewsLabel} переглядів</span>
+                  {/* <span className="hidden sm:inline">{article.viewsLabel} переглядів</span> */}
                 </div>
 
                 <div className="relative overflow-hidden rounded-lg aspect-[16/9] mb-6">

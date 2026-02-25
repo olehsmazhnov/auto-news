@@ -38,14 +38,14 @@ export function NewsCard({
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
           <Link href={href} className="absolute inset-0" aria-label={title} />
-          <div className="absolute top-4 left-4 z-10">
+          {/* <div className="absolute top-4 left-4 z-10">
             <Link
               href={categoryHref}
               className="inline-block px-3 py-1 text-xs font-semibold bg-blue-600 text-white rounded"
             >
               {category}
             </Link>
-          </div>
+          </div> */}
         </div>
         <h2 className="text-2xl mb-3 group-hover:text-blue-600 transition-colors">
           <Link href={href}>{title}</Link>
@@ -57,10 +57,10 @@ export function NewsCard({
             <span className="sm:hidden">{mobileDate ?? date}</span>
             <span className="hidden sm:inline">{date}</span>
           </div>
-          <div className="hidden sm:flex items-center gap-1">
+          {/* <div className="hidden sm:flex items-center gap-1">
             <EyeIcon className="h-4 w-4" />
             <span>{views} переглядів</span>
-          </div>
+          </div> */}
         </div>
       </article>
     );
@@ -79,14 +79,14 @@ export function NewsCard({
         />
       </Link>
       <div className="flex-1 flex flex-col">
-        <div className="mb-2">
+        {/* <div className="mb-2">
           <Link
             href={categoryHref}
             className="inline-block px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
           >
             {category}
           </Link>
-        </div>
+        </div> */}
         <h3 className="text-xl sm:text-lg mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
           <Link href={href}>{title}</Link>
         </h3>
@@ -97,10 +97,10 @@ export function NewsCard({
             <span className="sm:hidden">{mobileDate ?? date}</span>
             <span className="hidden sm:inline">{date}</span>
           </div>
-          <div className="hidden sm:flex items-center gap-1">
+          {/* <div className="hidden sm:flex items-center gap-1">
             <EyeIcon className="h-3 w-3" />
             <span>{views} переглядів</span>
-          </div>
+          </div> */}
         </div>
       </div>
     </article>
