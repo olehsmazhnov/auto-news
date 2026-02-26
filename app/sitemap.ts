@@ -37,6 +37,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.5
+    },
+    {
+      url: `${env.siteUrl}/copyright`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.4
     }
   ];
 

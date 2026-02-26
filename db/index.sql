@@ -28,6 +28,7 @@ create or replace function public.slugify_uk(value text)
 returns text
 language plpgsql
 immutable
+set search_path = ''
 as $$
 declare
   result text := lower(coalesce(value, ''));
@@ -86,6 +87,7 @@ $$;
 create or replace function public.news_items_set_slug()
 returns trigger
 language plpgsql
+set search_path = ''
 as $$
 declare
   base_slug text;
@@ -113,6 +115,7 @@ $$;
 create or replace function public.news_items_set_updated_at()
 returns trigger
 language plpgsql
+set search_path = ''
 as $$
 begin
   new.updated_at := now();
@@ -161,7 +164,7 @@ create or replace function public.get_news_category_counts()
 returns table(category text, count bigint)
 language sql
 stable
-set search_path = public
+set search_path = ''
 as $$
   select
     coalesce(nullif(trim(category), ''), 'News') as category,
@@ -172,6 +175,7 @@ as $$
 $$;
 
 alter table public.news_items enable row level security;
+alter table public.news_items force row level security;
 
 drop policy if exists news_items_public_read on public.news_items;
 create policy news_items_public_read
@@ -183,7 +187,9 @@ using (true);
 revoke all on function public.slugify_uk(text) from public;
 revoke all on function public.news_items_set_slug() from public;
 revoke all on function public.news_items_set_updated_at() from public;
+revoke all on function public.get_news_category_counts() from public;
 
+revoke all on table public.news_items from public;
 revoke all on table public.news_items from anon, authenticated;
 grant select on table public.news_items to anon, authenticated;
 grant execute on function public.get_news_category_counts() to anon, authenticated;

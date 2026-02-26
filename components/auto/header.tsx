@@ -9,6 +9,7 @@ const navItems = [
   { href: "/categories", label: "Категорії" },
   { href: "/news/page/2", label: "Архів" },
   { href: "/about", label: "Про нас" },
+  { href: "/copyright", label: "Авторське право" },
   { href: "/contact", label: "Контакти" }
 ] as const;
 
